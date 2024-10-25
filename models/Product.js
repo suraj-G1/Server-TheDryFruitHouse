@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
 
-exports.productSchema = ()=>{
-    mongoose.Schema({
-        name:{
+const productSchema =new mongoose.Schema({
+        productName:{
             type:String,
             required:true,
         },
@@ -23,8 +22,18 @@ exports.productSchema = ()=>{
                 type:mongoose.Schema.Types.ObjectId,
                 ref:"RatingAndReview"
             }
-        ]
+        ],
+        customerPurchased:[
+            {
+                type:mongoose.Schema.Types.ObjectId,
+                ref:"User"
+            }
+        ],
+        seller:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"User"
+        }
     })
-}
+
 
 module.exports = mongoose.model('Product',productSchema);

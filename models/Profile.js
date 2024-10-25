@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
-
-exports.profileSchema = ()=>{
-    mongoose.Schema({
+const profileSchema = new mongoose.Schema({
         gender:{
             type:String,
         },
@@ -13,9 +11,9 @@ exports.profileSchema = ()=>{
         },
         contactNumber:{
             type:Number,
-            required:true,
+            
         }
     })
-}
+
 
 module.exports = mongoose.model('Profile',profileSchema);

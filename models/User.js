@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-exports.userSchema = mongoose.Schema({
+const userSchema =new mongoose.Schema({
     firstName:{
         type:String,
         required:true,
@@ -21,11 +21,6 @@ exports.userSchema = mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         required:true,
         ref:"Profile"
-    },
-    accountType:{
-        type:String,
-        enum:["Admin","Customer"],
-        required:true,
     },
     image:{
         type:String,

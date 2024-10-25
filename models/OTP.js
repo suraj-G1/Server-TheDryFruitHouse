@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
 const mailSender = require('../utils/mailSender');
 const emailVerification = require('../mailTemplate/emailVerification');
-exports.otpSchema = ()=>{
-    mongoose.Schema({
+const otpSchema = new mongoose.Schema({
         otp:{
             type:Number,
             required:true,
@@ -17,7 +16,7 @@ exports.otpSchema = ()=>{
             expires:5*60*1000,
         }
     })
-}
+
 
 async function sendVerificationEmail(email,otp){
     try{

@@ -10,11 +10,11 @@ const mailSender = require('../utils/mailSender');
 exports.sentOTP=async(req,res)=>{
     try{
         const {email} = req.body;
-
+        
         //check whether User is already present or not
         const checkUserPresent = await User.find({email});
 
-        if(checkUserPresent){
+        if(!checkUserPresent){
             return res.status(400).json({
                 success:false,
                 message:"User already registered"
@@ -55,9 +55,8 @@ exports.signup = async(req,res)=>{
             email,
             password,
             confirmPassword,
-            accountType,
             otp} = req.body;
-        if(!firstName || !lastName || !email || !password || !confirmPassword || !accountType || !otp){
+        if(!firstName || !lastName || !email || !password || !confirmPassword || !otp){
             return res.status(400).json({
                 success:false,
                 message:"All fields are compulsory"
@@ -88,7 +87,9 @@ exports.signup = async(req,res)=>{
             })
         }
 
-        if(recentOtp[0].otp !== otp){
+        console.log("RecentOTP",recentOtp[0].otp);
+        console.log("OTP",otp);
+        if(recentOtp[0].otp != otp){
             return res.status(400).json({
                 success:false,
                 message:"OTP are not Matching"
@@ -109,7 +110,7 @@ exports.signup = async(req,res)=>{
             lastName,
             email,
             password:hashedPassword,
-            accountType,
+            
             additionalInformation:profileDetails,
             image:`https://api.dicebear.com/5.x/initials/svg?seed=${firstName}&${lastName}`
         })
@@ -141,7 +142,7 @@ exports.login=async(req,res)=>{
         }
 
         let user = await User.findOne({email}).populate('additionalInformation');
-
+    
         if(!user){
             return res.status(401).json({
                 success:false,
@@ -167,7 +168,7 @@ exports.login=async(req,res)=>{
             user.password = undefined;
 
             const options = {
-                expires: new Date(Date.now()*3*24*60*60*1000),
+                expires: new Date(Date.now()+ 3*24*60*60*1000),
                 httpOnly:true,
             }
 

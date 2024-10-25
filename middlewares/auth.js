@@ -65,7 +65,9 @@ exports.isCustomer = async(req,res,next)=>{
 //middleware to check user is Admin or not
 exports.isAdmin=async(req,res,next)=>{
     try{
-        if(req.user.accountType !== 'Admin'){
+        console.log('User',req.user.email);
+        console.log("Admin ",process.env.ADMIN_EMAIL);
+        if(req.user.email !== process.env.ADMIN_EMAIL){
             return res.status(400).json({
                 success:false,
                 message:"This is protected route for Admin"

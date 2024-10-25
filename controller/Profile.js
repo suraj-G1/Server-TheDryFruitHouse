@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const { generate } = require('otp-generator');
 const User = require('../models/User');
 const Profile = require('../models/Profile');
-
+const uploadFileToCloudinary = require('../utils/uploadFileToCloudinary')
+const Product = require('../models/Product');
 //update the profile
 exports.updateProfile = async(req,res)=>{
     try{
@@ -104,11 +105,98 @@ exports.updateProfilePicture = async(req,res)=>{
     try{
         const displayPicture = req.files.displayPicture;
         const userId = req.user.id;
+
+        const result = await uploadFileToCloudinary(displayPicture,
+                                                    process.env.FOLDER_NAME,
+                                                    1000,
+                                                    1000
+        );
+
+        const updatedUserDetails = await User.findByIdAndUpdate(
+            {id:userId},
+            {image:result.secure_url},
+            {new : true},
+        )
+
+        res.send({
+            success: true,
+            message: `Image Updated successfully`,
+            data: updatedProfile,
+          })
         
     }catch(error){
         return res.status(500).json({
             success:false,
             message:"Error while updaring the Profile Picture"
         })
+    }
+}
+
+
+exports.getPurchasedProduct = async(req,res)=>{
+    try{
+        const userId = req.user.id;
+
+        const userDetails = await User.findOne({_id:userId}).populate('products').exec();
+
+        if(!userDetails){
+            return res.status(400).json({
+                success:false,
+                message:"User details not found"
+            })
+        }
+
+
+        return res.status(200).json({
+            success:true,
+            message:'All purchased product returned successfully',
+            data:userDetails.products,
+        })
+
+    }catch(error){
+
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+          })
+    }
+
+}
+
+
+exports.getAdminDashboard = async(req,res)=>{
+    try{
+        const userId = req.user.id;
+
+        const adminDetails = await Product.findOne({seller:userId});
+
+        const productData = adminDetails.map((product)=>{
+            const totalCustomerPurchased = adminDetails.customerPurchased.length;
+            const totalAmountGenerated = totalCustomerPurchased * product.prize;
+            const productDataWithStats = {
+                _id:product._id,
+                productName:product.name,
+                productDescription:product.description,
+                totalCustomerPurchased,
+                totalAmountGenerated,
+            }
+
+            return  productDataWithStats
+
+        })
+
+        return res.status(200).json({
+            data:productData,
+        })
+
+
+    }catch(error){
+
+        console.log(error);
+        return res.status(500).json({
+            success:false,
+            message:"Internal Server Error"
+        })
+
     }
 }
