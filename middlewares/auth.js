@@ -5,10 +5,13 @@ require('dotenv').config();
 //middleware to Authenticate the user
 exports.auth=async(req,res,next)=>{
     try{
+        const {productId} = req.body;
+        console.log("Pringting Product ID",productId);
         const token = req.body.token ||
                     req.cookies.token || 
                     req.header('Authorization').replace("Bearer ","");
     
+        console.log("token",token);
         //if token is not present then return 
         if(!token){
             return res.status(400).json({
@@ -32,6 +35,7 @@ exports.auth=async(req,res,next)=>{
             })
 
         }
+        console.log("Token is valid");
         next();
 
     }catch(error){

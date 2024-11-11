@@ -37,7 +37,7 @@ app.use('/api/v1/product',productRoutes);
 app.get('/',(req,res)=>{
     return res.json({
         success:true,
-        message:"Hello World"
+        message:"I am here on FruitNuts"
     })
 })
 

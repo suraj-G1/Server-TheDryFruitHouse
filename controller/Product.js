@@ -63,9 +63,7 @@ exports.getAllProduct = async(req,res)=>{
             // customerPurchased:true,
         });
 
-        console.log("all Product",allProduct)
-
-
+        //console.log("all Product",allProduct)
         return res.status(200).json({
             success:true,
             data:allProduct,
@@ -81,22 +79,26 @@ exports.getAllProduct = async(req,res)=>{
 
 exports.getProductDetails = async(req,res)=>{
     try{
-
         console.log("I am here to get product details");
         const {productId} = req.body;
-        const productDetails = await Product.findOne({_id:productId}).populate('ratingAndReview').exec();
-
+        console.log("ProductId",productId);
+        const productDetails = await Product.findOne({_id:productId})
+        .populate('ratingAndReview')
+        .populate('customerPurchased')
+        .exec();
+        console.log("Product Details",productDetails);
         if(!productDetails){
             return res.status(400).json({
                 success:false,
                 message:"Product does not exists"
             })
         }
+        
 
         return res.status(200).json({
             success:true,
             message:"Product Details Fetched Successfully",
-            data:productDetails,
+            productDetails,
         })
     }catch(error){
         return res.status(500).json({

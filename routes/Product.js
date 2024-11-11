@@ -15,8 +15,8 @@ const {auth,isAdmin,isCustomer} = require('../middlewares/auth');
 
 
 router.post('/addProduct',auth,isAdmin,addProduct);
-router.get('/getProductDetails',auth,getProductDetails);
-router.get('/getAllProduct',auth,getAllProduct);
+router.post('/getProductDetails',getProductDetails);
+router.get('/getAllProduct',getAllProduct);
 router.delete('/deleteProduct',auth,isAdmin,deleteProduct);
 
 router.post('/createRating',auth,isCustomer,createRatingAndReview);
