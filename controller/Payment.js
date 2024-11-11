@@ -21,7 +21,7 @@ exports.capturePayment = async (req, res) => {
 
   let total_amount = 0
 
-  for (const product_id of courses) {
+  for (const product_id of products) {
     let product
     try {
       // Find the course by its ID
@@ -43,7 +43,7 @@ exports.capturePayment = async (req, res) => {
     //   }
 
       // Add the price of the course to the total amount
-      total_amount += course.price
+      total_amount += product.prize
     } catch (error) {
       console.log(error)
       return res.status(500).json({ success: false, message: error.message })
@@ -76,7 +76,7 @@ exports.verifyPayment = async (req, res) => {
   const razorpay_order_id = req.body?.razorpay_order_id
   const razorpay_payment_id = req.body?.razorpay_payment_id
   const razorpay_signature = req.body?.razorpay_signature
-  const courses = req.body?.products
+  const products = req.body?.products
 
   const userId = req.user.id
 
@@ -149,13 +149,13 @@ const enrollStudents = async (products, userId, res) => {
   for (const productId of products) {
     try {
       // Find the course and enroll the student in it
-      const purchasedCustomer = await Product.findOneAndUpdate(
+      const purchasedProduct = await Product.findOneAndUpdate(
         { _id: productId },
         { $push: { customerPurchased: userId } },
         { new: true }
       )
 
-      if (!purchasedCustomer) {
+      if (!purchasedProduct) {
         return res
           .status(500)
           .json({ success: false, error: "Course not found" })
@@ -168,7 +168,7 @@ const enrollStudents = async (products, userId, res) => {
     //     completedVideos: [],
     //   })
       // Find the student and add the course to their list of enrolled courses
-      const purchasedProduct = await User.findByIdAndUpdate(
+      const purchasedCustomer = await User.findByIdAndUpdate(
         userId,
         {
           $push: {

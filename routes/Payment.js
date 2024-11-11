@@ -8,8 +8,8 @@ const {
   sendPaymentSuccessEmail,
 } = require("../controller/Payment")
 const { auth, isCustomer,isAdmin } = require("../middlewares/auth")
-router.post("/capturePayment", auth,isCustomer, capturePayment)
-router.post("/verifyPayment", auth,isCustomer,  verifyPayment)
+router.post("/capturePayment", auth, capturePayment)
+router.post("/verifyPayment", auth,  verifyPayment)
 router.post(
   "/sendPaymentSuccessEmail",
   auth,
