@@ -10,6 +10,7 @@ const fileUpload = require('express-fileupload')
 const userRoutes = require('./routes/User');
 const profileRoutes = require('./routes/Profile');
 const productRoutes = require('./routes/Product');
+const paymentRoutes = require('./routes/Payment');
 database.Connect();
 app.use(express.json());
 app.use(cookieParser());
@@ -33,6 +34,7 @@ cloudinaryConnect();
 app.use('/api/v1/auth',userRoutes);
 app.use('/api/v1/profile',profileRoutes);
 app.use('/api/v1/product',productRoutes);
+app.use('/api/v1/payment',paymentRoutes);
 
 app.get('/',(req,res)=>{
     return res.json({
