@@ -8,8 +8,8 @@ exports.addProduct = async(req,res)=>{
     try{
         
         const{productName,description,prize} = req.body; 
-       // console.log("I am here");
-        const image = req.files.productImage;
+        //console.log("I am here");
+        const image = req.files.image;
         
         if(!productName || !description || !prize || !image){
             return res.status(400).json({
@@ -19,7 +19,7 @@ exports.addProduct = async(req,res)=>{
         }
         //console.log("I am here");
         const imageUploadResult = await uploadToCloudinary(image,process.env.FOLDER_NAME);
-        console.log("I am here",imageUploadResult);
+        //console.log("I am here",imageUploadResult);
         const newProduct = await Product.create({
             productName,
             description,

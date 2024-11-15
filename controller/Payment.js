@@ -4,6 +4,9 @@ const crypto = require("crypto")
 const User = require("../models/User")
 const mailSender = require("../utils/mailSender")
 const mongoose = require("mongoose")
+const {
+  productBoughtEmail
+} = require('../mailTemplate/ProductBoughtEmail')
 // const {
 //   courseEnrollmentEmail,
 // } = require("../mail/template/courseEnrollmentEmail")
@@ -72,38 +75,77 @@ exports.capturePayment = async (req, res) => {
 }
 
 // verify the payment
+// exports.verifyPayment = async (req, res) => {
+//   const razorpay_order_id = req.body?.razorpay_order_id
+//   const razorpay_payment_id = req.body?.razorpay_payment_id
+//   const razorpay_signature = req.body?.razorpay_signature
+//   const products = req.body?.products
+
+//   const userId = req.user.id
+
+//   if (
+//     !razorpay_order_id ||
+//     !razorpay_payment_id ||
+//     !razorpay_signature ||
+//     !products ||
+//     !userId
+//   ) {
+//     return res.status(400).json({ success: false, message: "Payment Failed" })
+//   }
+
+//   let body = razorpay_order_id + "|" + razorpay_payment_id
+
+//   const expectedSignature = crypto
+//     .createHmac("sha256", process.env.RAZORPAY_SECRET)
+//     .update(body.toString())
+//     .digest("hex")
+
+//   if (expectedSignature === razorpay_signature) {
+//     if (result.success) {
+//       return res.status(200).json({ success: true, message: "Payment Verified" });
+//     } else {
+//       // Log error if needed
+//       return res.status(500).json({ success: false, message: "Failed to add product to user purchases" });
+//     }
+//   }
+
+//   return res.status(200).json({ success: false, message: "Payment Failed" })
+// }
+
 exports.verifyPayment = async (req, res) => {
-  const razorpay_order_id = req.body?.razorpay_order_id
-  const razorpay_payment_id = req.body?.razorpay_payment_id
-  const razorpay_signature = req.body?.razorpay_signature
-  const products = req.body?.products
+  const razorpay_order_id = req.body?.razorpay_order_id;
+  const razorpay_payment_id = req.body?.razorpay_payment_id;
+  const razorpay_signature = req.body?.razorpay_signature;
+  const products = req.body?.products;
+  const userId = req.user.id;
 
-  const userId = req.user.id
-
-  if (
-    !razorpay_order_id ||
-    !razorpay_payment_id ||
-    !razorpay_signature ||
-    !products ||
-    !userId
-  ) {
-    return res.status(200).json({ success: false, message: "Payment Failed" })
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !products || !userId) {
+      return res.status(400).json({ success: false, message: "Payment Failed" });
   }
 
-  let body = razorpay_order_id + "|" + razorpay_payment_id
-
+  const body = razorpay_order_id + "|" + razorpay_payment_id;
   const expectedSignature = crypto
-    .createHmac("sha256", process.env.RAZORPAY_SECRET)
-    .update(body.toString())
-    .digest("hex")
+      .createHmac("sha256", process.env.RAZORPAY_SECRET)
+      .update(body.toString())
+      .digest("hex");
 
   if (expectedSignature === razorpay_signature) {
-    //await enrollStudents(courses, userId, res)
-    return res.status(200).json({ success: true, message: "Payment Verified" })
+      const result = await addProductToUserPurchases(products, userId);
+      console.log("Result of adding user Purchase",result);
+      if (result.success) {
+          return res.status(200).json({ success: true, message: "Payment Verified" });
+      } else {
+          return res.status(500).json({
+              success: false,
+              message: "Failed to add product(s) to user purchases",
+              errors: result.errors,
+          });
+      }
   }
 
-  return res.status(200).json({ success: false, message: "Payment Failed" })
-}
+  return res.status(400).json({ success: false, message: "Payment Failed" });
+};
+
 
 // Send Payment Success Email
 exports.sendPaymentSuccessEmail = async (req, res) => {
@@ -139,60 +181,114 @@ exports.sendPaymentSuccessEmail = async (req, res) => {
 }
 
 // enroll the student in the courses
-const enrollStudents = async (products, userId, res) => {
+// const addProductToUserPurchases = async (products, userId, res) => {
+//   if (!products || !userId) {
+//     return res
+//       .status(400)
+//       .json({ success: false, message: "Please Provide Course ID and User ID" })
+//   }
+
+//   for (const productId of products) {
+//     try {
+//       // Find the course and enroll the student in it
+//       const purchasedProduct = await Product.findOneAndUpdate(
+//         { _id: productId },
+//         { $push: { customerPurchased: userId } },
+//         { new: true }
+//       )
+
+//       if (!purchasedProduct) {
+//         return res
+//           .status(500)
+//           .json({ success: false, error: "Product not found" })
+//       }
+//       //console.log("Updated course: ", enrolledCourse)
+
+//     //   const courseProgress = await CourseProgress.create({
+//     //     courseID: courseId,
+//     //     userId: userId,
+//     //     completedVideos: [],
+//     //   })
+//       // Find the student and add the course to their list of enrolled courses
+//       const purchasedCustomer = await User.findByIdAndUpdate(
+//         userId,
+//         {
+//           $push: {
+//             products:productId
+//           },
+//         },
+//         { new: true }
+//       )
+
+//       //console.log("Enrolled student: ", enrolledStudent)
+//       // Send an email notification to the enrolled student
+//       const emailResponse = await mailSender(
+//         purchasedCustomer.email,
+//         `Successfully Enrolled into ${purchasedProduct.productName}`,
+//         courseEnrollmentEmail(
+//           purchasedProduct.productName,
+//           `${purchasedCustomer.firstName} ${purchasedCustomer.lastName}`
+//         )
+//       )
+
+//       //console.log("Email sent successfully: ", emailResponse.response)
+//     } catch (error) {
+//       //console.log(error)
+//       return res.status(400).json({ success: false, error: error.message })
+//     }
+//   }
+// }
+
+const addProductToUserPurchases = async (products, userId) => {
   if (!products || !userId) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Please Provide Course ID and User ID" })
+      throw new Error("Please provide Course ID and User ID");
   }
+  console.log("Here to add Product to User Purchase");
+  const errors = [];
 
   for (const productId of products) {
-    try {
-      // Find the course and enroll the student in it
-      const purchasedProduct = await Product.findOneAndUpdate(
-        { _id: productId },
-        { $push: { customerPurchased: userId } },
-        { new: true }
-      )
+      try {
+          // Find the product and add the user to the list of customers who purchased it
+          const purchasedProduct = await Product.findOneAndUpdate(
+              { _id: productId },
+              { $push: { customerPurchased: userId } },
+              { new: true }
+          );
 
-      if (!purchasedProduct) {
-        return res
-          .status(500)
-          .json({ success: false, error: "Course not found" })
+          if (!purchasedProduct) {
+              errors.push(`Product not found for ID: ${productId}`);
+              continue;
+          }
+
+          // Find the user and add the product to their list of purchased products
+          const purchasedCustomer = await User.findByIdAndUpdate(
+              userId,
+              {
+                  $push: { products: productId },
+              },
+              { new: true }
+          );
+          console.log("Email of PC",purchasedCustomer.email);
+          // Send an email notification to the customer
+          await mailSender(
+              purchasedCustomer.email,
+              `Successfully Purchased ${purchasedProduct.productName}`,
+              productBoughtEmail(
+                  purchasedProduct.productName,
+                  `${purchasedCustomer.firstName} ${purchasedCustomer.lastName}`
+              )
+          );
+
+      } catch (error) {
+          errors.push(`Error processing product ID ${productId}: ${error.message}`);
       }
-      //console.log("Updated course: ", enrolledCourse)
-
-    //   const courseProgress = await CourseProgress.create({
-    //     courseID: courseId,
-    //     userId: userId,
-    //     completedVideos: [],
-    //   })
-      // Find the student and add the course to their list of enrolled courses
-      const purchasedCustomer = await User.findByIdAndUpdate(
-        userId,
-        {
-          $push: {
-            products:productId
-          },
-        },
-        { new: true }
-      )
-
-      //console.log("Enrolled student: ", enrolledStudent)
-      // Send an email notification to the enrolled student
-      const emailResponse = await mailSender(
-        purchasedCustomer.email,
-        `Successfully Enrolled into ${purchasedProduct.productName}`,
-        courseEnrollmentEmail(
-          purchasedProduct.productName,
-          `${purchasedCustomer.firstName} ${purchasedCustomer.lastName}`
-        )
-      )
-
-      //console.log("Email sent successfully: ", emailResponse.response)
-    } catch (error) {
-      //console.log(error)
-      return res.status(400).json({ success: false, error: error.message })
-    }
   }
-}
+
+  if (errors.length > 0) {
+      // Return a detailed error message if any errors occurred
+      return { success: false, errors };
+  }
+
+  // If no errors, return success
+  return { success: true };
+};
