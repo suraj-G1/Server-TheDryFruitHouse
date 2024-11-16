@@ -63,7 +63,7 @@ exports.getAllProduct = async(req,res)=>{
             // customerPurchased:true,
         });
 
-        //console.log("all Product",allProduct)
+        console.log("all Product",allProduct)
         return res.status(200).json({
             success:true,
             data:allProduct,
