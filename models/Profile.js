@@ -3,15 +3,14 @@ const profileSchema = new mongoose.Schema({
         gender:{
             type:String,
         },
-        age:{
-            type:Number,
+        dateOfBirth:{
+            type:Date,
         },
         about:{
             type:String,
         },
         contactNumber:{
-            type:Number,
-            
+            type:Number, 
         }
     })
 

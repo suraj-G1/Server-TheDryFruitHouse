@@ -22,7 +22,7 @@ exports.sentOTP=async(req,res)=>{
         }
 
         //now generate OTP
-        const otp = await otpGenerator.generate(6,{
+        const otp = otpGenerator.generate(6,{
             lowerCaseAlphabets:false,
             upperCaseAlphabets:false,
             specialChars:false,
@@ -31,10 +31,10 @@ exports.sentOTP=async(req,res)=>{
         const otpPayload = {email,otp};
 
         const otpBody =await OTP.create(otpPayload);
-
+        console.log("OTP ",otpBody);
         return res.status(200).json({
             success:true,
-            otp,
+            otpBody,
             message:"OTP generated Successfully"
         })
     }catch(error){
@@ -116,7 +116,7 @@ exports.signup = async(req,res)=>{
         })
 
         return res.status(200).json({
-            success:false,
+            success:true,
             message:"User Registered Successfully",
             user
         })

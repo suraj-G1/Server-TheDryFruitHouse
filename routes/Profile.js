@@ -13,7 +13,7 @@ const{
 const {auth,isAdmin,isCustomer} = require('../middlewares/auth');
 
 router.delete('/deleteProfile',auth,deleteProfile);
-router.post('/updateProfile',auth,updateProfile);
+router.put('/updateProfile',auth,updateProfile);
 router.get('/getPurchasedProduct',auth,getPurchasedProduct);
 router.get('/getAllUserDetails',auth,isCustomer,getAllUserDetails);
 router.get('/getAdminDashboard',auth,isAdmin,getAdminDashboard);

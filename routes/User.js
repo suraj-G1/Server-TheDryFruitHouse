@@ -14,7 +14,5 @@ router.post('/login',login);
 router.post('/signup',signup);
 router.post('/sendOTP',sentOTP);
 router.post('/changePassword',auth,changePassword);
-
-
 module.exports = router;
 

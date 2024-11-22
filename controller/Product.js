@@ -8,7 +8,6 @@ exports.addProduct = async(req,res)=>{
     try{
         
         const{productName,description,prize} = req.body; 
-        //console.log("I am here");
         const image = req.files.image;
         
         if(!productName || !description || !prize || !image){
@@ -17,9 +16,7 @@ exports.addProduct = async(req,res)=>{
                 message:'All Fields are required'
             })
         }
-        //console.log("I am here");
         const imageUploadResult = await uploadToCloudinary(image,process.env.FOLDER_NAME);
-        //console.log("I am here",imageUploadResult);
         const newProduct = await Product.create({
             productName,
             description,
@@ -27,7 +24,6 @@ exports.addProduct = async(req,res)=>{
             image:imageUploadResult.secure_url,
         })
 
-        //await newProduct.save();
 
 
         const updatedUser = await User.findByIdAndUpdate(
@@ -53,17 +49,11 @@ exports.addProduct = async(req,res)=>{
 
 exports.getAllProduct = async(req,res)=>{
     try{
-        //const userId = req.user.id;
 
         const allProduct = await Product.find({
-            // productName:true,
-            // description:true,
-            // prize:true,
-            // ratingAndReview:true,
-            // customerPurchased:true,
+            
         });
 
-        console.log("all Product",allProduct)
         return res.status(200).json({
             success:true,
             data:allProduct,
@@ -79,14 +69,11 @@ exports.getAllProduct = async(req,res)=>{
 
 exports.getProductDetails = async(req,res)=>{
     try{
-        console.log("I am here to get product details");
         const {productId} = req.body;
-        console.log("ProductId",productId);
         const productDetails = await Product.findOne({_id:productId})
         .populate('ratingAndReview')
         .populate('customerPurchased')
         .exec();
-        console.log("Product Details",productDetails);
         if(!productDetails){
             return res.status(400).json({
                 success:false,

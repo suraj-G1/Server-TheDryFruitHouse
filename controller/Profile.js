@@ -7,37 +7,42 @@ const Product = require('../models/Product');
 //update the profile
 exports.updateProfile = async(req,res)=>{
     try{
-        const{gender,contactNumber,age,about=""} = req.body;
+        const{gender,contactNumber,dateOfBirth,about=""} = req.body;
+        // console.log("I am coming here to update profile",gender);
+        // console.log("I am coming here to update profile",contactNumber);
+
+        // console.log("I am coming here to update profile",dateOfBirth);
+
         const userId = req.user.id;
-        if(!gender || !contactNumber || !age){
+        if(!gender || !contactNumber || !dateOfBirth){
             return res.status(400).json({
                 success:false,
                 message:'All fields are compulsory'
             })
         }
-
         //find the  user from user ID
+        //console.log("User id ",userId);
         const userDetails = await User.findById(userId);
+        //console.log("user Details",userDetails);
         const profileId = userDetails.additionalInformation;
+        //console.log("profileId",profileId);
         const profileDetails = await Profile.findById(profileId);
 
         //update the profile Details
         profileDetails.gender = gender;
         profileDetails.contactNumber = contactNumber;
-        profileDetails.age = age;
+        profileDetails.dateOfBirth = dateOfBirth;
         profileDetails.about = about;
         
         //save the Profile
-        profileDetails.save();
+         await profileDetails.save();
 
         //return the response
-        return res.status(400).json({
-            success:false,
+        return res.status(200).json({
+            success:true,
             message:'Profile Details Updated Successfully',
             profileDetails
         })
-
-
     }catch(error){
         return res.status(500).json({
             success:false,
