@@ -19,7 +19,7 @@ router.post('/getProductDetails',getProductDetails);
 router.get('/getAllProduct',getAllProduct);
 router.delete('/deleteProduct',auth,isAdmin,deleteProduct);
 
-router.post('/createRating',auth,isCustomer,createRatingAndReview);
+router.post('/createRating',auth,createRatingAndReview);
 router.get('/getAverageRating',getAverageRating);
 router.get('/getAllRating',getAllRating);
 

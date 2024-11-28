@@ -5,6 +5,9 @@ exports.createRatingAndReview = async (req, res) => {
     try {
         const userId = req.user.id;
         const { productId, rating, review } = req.body;
+        console.log("useId",userId);
+        console.log("Product id",productId);
+
 
         const productDetails = await Product.findOne({
             _id: productId,
@@ -21,10 +24,10 @@ exports.createRatingAndReview = async (req, res) => {
 
         //check whether customer has already given review or not
 
-        const ratingGiven = await RatingAndReview.find(
-            { user: userId },
-            { product: productId }
-        );
+        const ratingGiven = await RatingAndReview.findOne({
+            user: userId ,
+            product: productId 
+        });
 
         if (ratingGiven) {
             return res.status(400).json({
@@ -32,6 +35,7 @@ exports.createRatingAndReview = async (req, res) => {
             message: "User has already given the Rating ",
             });
         }
+        console.log("user hhas not given rating",review);
 
         //now creating rating and review
         const ratingAndReview = await RatingAndReview.create({

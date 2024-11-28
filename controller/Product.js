@@ -50,9 +50,9 @@ exports.addProduct = async(req,res)=>{
 exports.getAllProduct = async(req,res)=>{
     try{
 
-        const allProduct = await Product.find({
-            
-        });
+        const allProduct = await Product.find({    
+        }).populate('ratingAndReview')
+        .exec();
 
         return res.status(200).json({
             success:true,
